@@ -15,21 +15,49 @@ mutation CreateCard($input: CreateCardInput!) {
 }
 """
 
+_UPDATE_CARD_FIELD_MUTATION = """
+mutation UpdateCardField($input: UpdateCardFieldInput!) {
+  updateCardField(input: $input) {
+    success
+  }
+}
+"""
 
-def criar_card(nome: str, email: str, patrimonio: float, prioridade: str) -> dict:
+
+def create_card(
+    cliente_nome: str,
+    cliente_email: str,
+    tipo_solicitacao: str,
+    valor_patrimonio: float,
+) -> dict:
     payload = {
         "query": _CREATE_CARD_MUTATION,
         "variables": {
             "input": {
                 "pipe_id": PIPE_ID,
+                "title": cliente_nome,
                 "fields_attributes": [
-                    {"field_id": "nome", "field_value": nome},
-                    {"field_id": "email", "field_value": email},
-                    {"field_id": "patrimonio", "field_value": str(patrimonio)},
-                    {"field_id": "prioridade", "field_value": prioridade},
+                    {"field_id": "cliente_email", "field_value": cliente_email},
+                    {"field_id": "tipo_solicitacao", "field_value": tipo_solicitacao},
+                    {"field_id": "valor_patrimonio", "field_value": str(valor_patrimonio)},
                 ],
             }
         },
     }
     logger.info("Pipefy createCard (simulated): %s", payload)
+    return payload
+
+
+def update_card_field(card_id: str, field_id: str, new_value: str) -> dict:
+    payload = {
+        "query": _UPDATE_CARD_FIELD_MUTATION,
+        "variables": {
+            "input": {
+                "card_id": card_id,
+                "field_id": field_id,
+                "new_value": new_value,
+            }
+        },
+    }
+    logger.info("Pipefy updateCardField (simulated): %s", payload)
     return payload

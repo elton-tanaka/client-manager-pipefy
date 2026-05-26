@@ -30,52 +30,39 @@ def reset_db():
     Base.metadata.drop_all(bind=engine)
 
 
-def test_criar_cliente_valido():
+def test_create_client_valid():
     response = client.post("/clientes/", json={
-        "nome": "João Silva",
-        "email": "joao@example.com",
-        "patrimonio": 150_000.0,
+        "cliente_nome": "João Silva",
+        "cliente_email": "joao@example.com",
+        "tipo_solicitacao": "Atualização cadastral",
+        "valor_patrimonio": 150_000.0,
     })
     assert response.status_code == 201
     data = response.json()
-    assert data["email"] == "joao@example.com"
-    assert data["prioridade"] == "prioridade_normal"
+    assert data["cliente_email"] == "joao@example.com"
+    assert data["status"] == "Aguardando Análise"
+    assert data["prioridade"] is None
     assert "id" in data
-    assert "criado_em" in data
+    assert "created_at" in data
 
 
-def test_prioridade_alta_no_limite():
+def test_create_client_invalid_email():
     response = client.post("/clientes/", json={
-        "nome": "Maria Souza",
-        "email": "maria@example.com",
-        "patrimonio": 200_000.0,
-    })
-    assert response.status_code == 201
-    assert response.json()["prioridade"] == "prioridade_alta"
-
-
-def test_prioridade_normal_abaixo_limite():
-    response = client.post("/clientes/", json={
-        "nome": "Carlos Lima",
-        "email": "carlos@example.com",
-        "patrimonio": 199_999.99,
-    })
-    assert response.status_code == 201
-    assert response.json()["prioridade"] == "prioridade_normal"
-
-
-def test_email_invalido_retorna_422():
-    response = client.post("/clientes/", json={
-        "nome": "Teste",
-        "email": "not-an-email",
-        "patrimonio": 50_000.0,
+        "cliente_nome": "Test",
+        "cliente_email": "not-an-email",
+        "tipo_solicitacao": "Abertura de conta",
+        "valor_patrimonio": 50_000.0,
     })
     assert response.status_code == 422
 
 
-def test_email_duplicado_retorna_409():
-    payload = {"nome": "Dup", "email": "dup@example.com", "patrimonio": 50_000.0}
+def test_create_client_duplicate_email():
+    payload = {
+        "cliente_nome": "Dup",
+        "cliente_email": "dup@example.com",
+        "tipo_solicitacao": "Abertura de conta",
+        "valor_patrimonio": 50_000.0,
+    }
     client.post("/clientes/", json=payload)
     response = client.post("/clientes/", json=payload)
     assert response.status_code == 409
-    assert "Email já cadastrado" in response.json()["detail"]

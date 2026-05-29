@@ -5,6 +5,7 @@ Backend technical test: client management API with simulated Pipefy GraphQL inte
 ## Setup
 
 ```bash
+cp .env.example .env   # then set PIPEFY_API_TOKEN to your bearer token (any value works for local simulation)
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
